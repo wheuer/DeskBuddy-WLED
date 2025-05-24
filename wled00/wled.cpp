@@ -311,6 +311,20 @@ void WLED::disableWatchdog() {
 
 void WLED::setup()
 {
+  // --- WFH ---
+  // The USB PD chip can take up to a second to negotitate the PD contract
+  delay(2000);
+
+  // Make sure the LED load switch is active before trying to use LEDs
+  // Later in setup we also always set the maximum current to 750mA
+  pinMode(25, OUTPUT);
+  digitalWrite(25, 1);
+
+  // Ignore default brightness build process shennanigans and just force it here
+  bri = 20;
+  briS = 20;
+  // -----------
+
   #if defined(ARDUINO_ARCH_ESP32) && defined(WLED_DISABLE_BROWNOUT_DET)
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detection
   #endif
@@ -423,7 +437,7 @@ void WLED::setup()
   multiWiFi.push_back(WiFiConfig(CLIENT_SSID,CLIENT_PASS)); // initialise vector with default WiFi
 
   DEBUG_PRINTLN(F("Reading config"));
-  deserializeConfigFromFS();
+  deserializeConfigFromFS();                // -------------------- WFH: THIS IS WHERE THE CONFIG IS READ AND SETTINGS ARE LODADED --------------------
   DEBUG_PRINTF_P(PSTR("heap %u\n"), ESP.getFreeHeap());
 
 #if defined(STATUSLED) && STATUSLED>=0
