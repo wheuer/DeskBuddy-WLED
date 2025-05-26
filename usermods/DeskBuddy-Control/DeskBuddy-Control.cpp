@@ -15,6 +15,7 @@ class DeskBuddy : public Usermod {
     uint32_t _usbVoltage;         // mV
     bool _lowPowerMode;
     bool _configured;
+    bool _overTemp;
 
     float _activeCurrentConsumption = -1; // mA
     float _busVoltage = -1; // mV
@@ -23,8 +24,13 @@ class DeskBuddy : public Usermod {
     float _avgTemp = -1; 
 
     uint8_t pdResponse[7];
-    char buffer[256];
+    char buffer[512];
 
+	// There is a maximum of 255 presets so just have a straight buffer
+	uint8_t presetBuffer[255];
+	uint8_t presetsLength = 0;
+	uint8_t activePreset = 0;
+	
     int initPowerMeter(void)
     {
       // Configure power meter
@@ -163,7 +169,7 @@ class DeskBuddy : public Usermod {
       switch (buttonNum)
       {
         case BUTTON_TOP:
-          // Top is power toggle 
+          // Top is power toggle
           toggleOnOff();
           break;
         case BUTTON_MID_TOP:
@@ -177,13 +183,43 @@ class DeskBuddy : public Usermod {
           else bri -= BUTTON_BRIGHTNESS_STEP_SIZE;
           break;
         case BUTTON_BOT:
-          // Cycle to new effect (not yet implemented)
+          // Cycle to new effect
+          updatePresetArray();
+		  if (presetsLength > 1) // Make sure there is at least one preset
+		  {
+			activePreset = (activePreset + 1) % presetsLength;
+			if (activePreset == 0) activePreset = 1; // The first preset is always zero and is invalid
+			//   Serial.print("Applying preset "); Serial.println(presetBuffer[activePreset]);
+			applyPreset(presetBuffer[activePreset], CALL_MODE_BUTTON);
+		  }
           break;
         default:
           // Invalid button, do nothing
           break;
       }
       stateUpdated(CALL_MODE_BUTTON);
+    }
+
+    void updatePresetArray(void)
+    {
+		// Take semaphore required to use global pDoc buffer
+		// Should wait for 250 ms or timeout and then just return
+		if (!requestJSONBufferLock(DESK_BUDDY_MODULE_ID)) return;
+
+		// Read the entire presets file into global json buffer
+		readObjectFromFile(PSTR("/presets.json"), nullptr, pDoc);
+
+		// Save the keys of the saved presets, this is their ID numbers
+		JsonObject presetJsonObj = pDoc->as<JsonObject>();
+		presetsLength = 0;
+		for (JsonPair kv : presetJsonObj) {
+			presetBuffer[presetsLength++] = atoi(kv.key().c_str());
+		}
+
+		if (activePreset >= presetsLength) activePreset = 0;
+
+		// Give back pDoc sempahore
+		releaseJSONBufferLock();
     }
 
   public:
@@ -318,6 +354,27 @@ class DeskBuddy : public Usermod {
         _tempOne = readTemperature(0);
         _tempTwo = readTemperature(1);
         _avgTemp = (_tempOne + _tempTwo) / 2;
+        
+        if (_overTemp)
+        {
+          if ((_avgTemp + TMEPERATURE_HYST) < TEMPERATURE_BEFORE_CUTOFF)
+          {
+            bri = SAFE_DEFAULT_BRIGHTNESS;
+            _overTemp = false;
+            stateChanged = true;
+          }
+        } 
+        else 
+        {
+          if (_avgTemp > TEMPERATURE_BEFORE_CUTOFF)
+          {
+            bri = 0;
+            _overTemp = true;
+            stateChanged = true;
+          }
+        }
+
+        // Overcurrent is being protected through software for now, the thermal considerations are more potent
       }
     }
 

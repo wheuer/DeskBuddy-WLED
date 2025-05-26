@@ -1,14 +1,19 @@
 #ifndef DESK_BUDDY_H
 #define DESK_BUDDY_H
 
-#define STATUS_UPDATE_INTERVAL  2000 // ms
-#define ABSOLUTE_MAX_CURRENT    2000 // Technically we could hanlde up to 4A, but thats quite bright and HOT 
+#define DESK_BUDDY_MODULE_ID 99 // No real definition for module ids so just a random number hopefully valid
+
+#define STATUS_UPDATE_INTERVAL      2000 // ms
+#define ABSOLUTE_MAX_CURRENT        2000 // Technically we could hanlde up to 4A, but thats quite bright and HOT 
+#define TEMPERATURE_BEFORE_CUTOFF   50
+#define TMEPERATURE_HYST            10
+#define SAFE_DEFAULT_BRIGHTNESS     15
 
 #define LED_TOP_PIN       26
 #define LED_BOT_PIN       27
 #define VLED_LOAD_SW_PIN  25
 
-#define TOUCH_PANEL_DEFAULT_BRIGHTNESS  0x55
+#define TOUCH_PANEL_DEFAULT_BRIGHTNESS  0x8
 #define LED_DRIVER_I2C_ADDR             0x14
 #define DEVICE_CONFIG0_REG              0x00 
 #define LED_CONFIG_REG                  0x02

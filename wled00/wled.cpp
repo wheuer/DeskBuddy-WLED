@@ -3,6 +3,8 @@
 #include "wled_ethernet.h"
 #include <Arduino.h>
 
+#include "DeskBuddy-Control.h"
+
 #if defined(ARDUINO_ARCH_ESP32) && defined(WLED_DISABLE_BROWNOUT_DET)
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
@@ -321,8 +323,8 @@ void WLED::setup()
   digitalWrite(25, 1);
 
   // Ignore default brightness build process shennanigans and just force it here
-  bri = 20;
-  briS = 20;
+  bri = SAFE_DEFAULT_BRIGHTNESS;
+  briS = SAFE_DEFAULT_BRIGHTNESS;
   // -----------
 
   #if defined(ARDUINO_ARCH_ESP32) && defined(WLED_DISABLE_BROWNOUT_DET)

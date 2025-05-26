@@ -720,8 +720,8 @@ WLED_GLOBAL bool receiveNotificationPalette    _INIT(true);       // apply palet
 WLED_GLOBAL bool receiveSegmentOptions         _INIT(false);      // apply segment options
 WLED_GLOBAL bool receiveSegmentBounds          _INIT(false);      // apply segment bounds (start, stop, offset)
 WLED_GLOBAL bool receiveDirect _INIT(true);                       // receive UDP/Hyperion realtime
-WLED_GLOBAL bool notifyDirect _INIT(false);                       // send notification if change via UI or HTTP API
-WLED_GLOBAL bool notifyButton _INIT(false);                       // send if updated by button or infrared remote
+WLED_GLOBAL bool notifyDirect _INIT(false);                       // send notification if change via UI or HTTP API 
+WLED_GLOBAL bool notifyButton _INIT(true);                       // send if updated by button or infrared remote //--- WFH --- Change this to true so we notify from touch panel buttons
 WLED_GLOBAL bool notifyAlexa  _INIT(false);                       // send notification if updated via Alexa
 WLED_GLOBAL bool notifyHue    _INIT(true);                        // send notification if Hue light changes
 #endif
