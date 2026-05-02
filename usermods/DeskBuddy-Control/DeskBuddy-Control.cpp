@@ -1,6 +1,5 @@
 #include "wled.h"
 #include <Wire.h>
-#include <FastLED.h>
 
 #include "DeskBuddy-Control.h"
 
@@ -26,10 +25,10 @@ class DeskBuddy : public Usermod {
     uint8_t pdResponse[7];
     char buffer[512];
 
-	// There is a maximum of 255 presets so just have a straight buffer
-	uint8_t presetBuffer[255];
-	uint8_t presetsLength = 0;
-	uint8_t activePreset = 0;
+    // There is a maximum of 255 presets so just have a straight buffer
+    uint8_t presetBuffer[255];
+    uint8_t presetsLength = 0;
+    uint8_t activePreset = 0;
 	
     int initPowerMeter(void)
     {
@@ -281,7 +280,6 @@ class DeskBuddy : public Usermod {
       // Set up two segments to be a matrix 
       strip.isMatrix = 1;
       strip.panel.clear(); // release memory if allocated
-      strip.panels = 2;
       WS2812FX::Panel panel;
       panel.options = 0; // First LED starts at top left and panel is not serpentine
       panel.yOffset = 0;
